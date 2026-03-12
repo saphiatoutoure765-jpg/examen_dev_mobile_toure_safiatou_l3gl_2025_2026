@@ -10,6 +10,9 @@ class CustomTextField extends StatefulWidget {
   final IconData? prefixIcon;
   final int maxLines;
 
+  // AJOUT POUR LA VALIDATION
+  final String? Function(String?)? validator;
+
   const CustomTextField({
     super.key,
     required this.controller,
@@ -19,6 +22,7 @@ class CustomTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
     this.maxLines = 1,
+    this.validator,
   });
 
   @override
@@ -32,9 +36,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
 
-    return TextField(
+    return TextFormField(
       controller: widget.controller,
       keyboardType: widget.keyboardType,
+      validator: widget.validator,
       maxLines: widget.obscureText ? 1 : widget.maxLines,
       obscureText: widget.obscureText ? _isHidden : false,
 
