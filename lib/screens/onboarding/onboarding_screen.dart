@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:sunu_task/core/constants/app_colors.dart';
 import 'package:sunu_task/core/constants/app_strings.dart';
 import 'package:sunu_task/models/OnboardingItem.dart';
-import 'package:sunu_task/screens/home/home_screen.dart';
 import 'package:sunu_task/services/storage_service.dart';
+
+// === MODIFICATION PARTIE 3.3 ===
+// Navigation vers LoginScreen apres onboarding
+import 'package:sunu_task/screens/auth/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -21,8 +24,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         icon: Icons.task_alt,
         title: AppStrings.onboardingTitle1,
         description: AppStrings.onboardingDesc1,
-        color: AppColors.primary
-    ),
+        color: AppColors.primary),
     OnboardingItem(
       icon: Icons.people,
       title: AppStrings.onboardingTitle2,
@@ -52,56 +54,48 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   //====== Methodes ========
   void _nextPage() {
-    if(_currentPage < _pages.length - 1){
+    if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut);
-    }else {
+    } else {
       _completeOnboarding();
     }
   }
 
-  Future<void> _completeOnboarding() async{
+  Future<void> _completeOnboarding() async {
     await StorageService.instance.setOnboardingComplete(true);
-    
-    if(mounted){
+
+    if (mounted) {
+      // === MODIFICATION PARTIE 3.3 ===
+      // apres l'onboarding on va vers LoginScreen
       Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen())
-      );
+          context, MaterialPageRoute(builder: (_) => const LoginScreen()));
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildSkipButton(),
-
-            _buildPages(),
-
-            _buildNavigationButtons()
-          ],
-        )
-      )
-    );
+        body: SafeArea(
+            child: Column(children: [
+              _buildSkipButton(),
+              _buildPages(),
+              _buildNavigationButtons()
+            ])));
   }
 
   Widget _buildSkipButton() {
-    if(_currentPage != _pages.length -1) {
+    if (_currentPage != _pages.length - 1) {
       return Align(
         alignment: Alignment.centerRight,
         child: TextButton(
             onPressed: _completeOnboarding,
-            child: Text(
-                AppStrings.skip,
+            child: Text(AppStrings.skip,
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondary,
-                )
-            )
-        ),
+                ))),
       );
     }
 
@@ -116,7 +110,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         onPageChanged: (index) {
           setState(() => _currentPage = index);
         },
-        itemBuilder: (context, index){
+        itemBuilder: (context, index) {
           return _buildPage(_pages[index]);
         },
       ),
@@ -133,9 +127,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: 160,
             height: 160,
             decoration: BoxDecoration(
-                color: item.color.withAlpha(100),
-                shape: BoxShape.circle,
-              //shape: BoxShape.circle
+              color: item.color.withAlpha(100),
+              shape: BoxShape.circle,
             ),
             child: Icon(
               item.icon,
@@ -143,28 +136,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               color: item.color,
             ),
           ),
-
-          SizedBox(height: 48,),
-
+          SizedBox(
+            height: 48,
+          ),
           Text(
             item.title,
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
             ),
           ),
-
-          SizedBox(height: 16,),
-
+          SizedBox(
+            height: 16,
+          ),
           Text(
             item.description,
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontSize: 16,
-                height: 1.5,
-                color: AppColors.textSecondary,
+              fontSize: 16,
+              height: 1.5,
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -180,43 +173,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Previous button - visible when not on first page
           Visibility(
               visible: _currentPage > 0,
               child: TextButton(
                   onPressed: () {
                     _pageController.previousPage(
                         duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut
-                    );
+                        curve: Curves.easeInOut);
                   },
-                  child: Text(
-                      AppStrings.previous,
+                  child: Text(AppStrings.previous,
                       style: TextStyle(
                         fontSize: 16,
                         color: AppColors.textSecondary,
-                      )
-                  )
-              )
-          ),
-
+                      )))),
           ElevatedButton(
               onPressed: _nextPage,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
-              child: Text(
-                  isLastPage ? AppStrings.getStarted : AppStrings.next,
+              child: Text(isLastPage ? AppStrings.getStarted : AppStrings.next,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
-                  )
-              )
-          ),
+                  ))),
         ],
       ),
     );
   }
-
 }

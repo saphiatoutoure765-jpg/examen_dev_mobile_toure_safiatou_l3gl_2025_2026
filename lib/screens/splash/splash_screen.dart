@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:sunu_task/core/constants/app_strings.dart';
-import 'package:sunu_task/screens/home/home_screen.dart';
 import 'package:sunu_task/screens/onboarding/onboarding_screen.dart';
 import 'package:sunu_task/services/storage_service.dart';
+
+// === MODIFICATION PARTIE 3.3 ===
+// Import du LoginScreen pour le flux d'authentification
+import 'package:sunu_task/screens/auth/login_screen.dart';
 
 import '../../core/constants/app_colors.dart';
 
@@ -37,54 +40,49 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _startAnimations() {
     Future.delayed(Duration(milliseconds: 100), () {
-      //mounted vérifie toujours si le widget est toujours actif
-      // dans l'arbre de widget
-      if(mounted) {
+      if (mounted) {
         setState(() => _showLogo = true);
       }
     });
 
     Future.delayed(Duration(milliseconds: 1500), () {
-      if(mounted) {
+      if (mounted) {
         setState(() => _showText = true);
       }
     });
   }
 
   void _startTimer() {
-    _timer = Timer( Duration(seconds: 3), _navigateToNextScreen);
+    _timer = Timer(Duration(seconds: 3), _navigateToNextScreen);
   }
 
   void _navigateToNextScreen() {
-    if(!mounted) return;
-    final bool onboardingComplete = StorageService.instance.isOnboardingComplete;
+    if (!mounted) return;
 
-    /*Navigator.pushReplacement(context,
-      MaterialPageRoute<void>(
-      builder: (context) => onboardingComplete
-          ? const HomeScreen()
-          : const OnboardingScreen(),
-    ),
-    );*/
+    final bool onboardingComplete =
+        StorageService.instance.isOnboardingComplete;
 
-    // Navigation avec animation
+    // === MODIFICATION PARTIE 3.3 ===
+    // Si l'onboarding est terminé → LoginScreen
+    // Sinon → OnboardingScreen
+
     Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-          onboardingComplete
-              ? const HomeScreen()
-              : const OnboardingScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+            onboardingComplete
+                ? const LoginScreen()
+                : const OnboardingScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
                 opacity: animation,
-              child: child,
-            );
-          },
-          transitionDuration: Duration(milliseconds: 300)
-        )
-    );
+                child: child,
+              );
+            },
+            transitionDuration: Duration(milliseconds: 300)));
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,14 +92,22 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // logo
             _buildLogo(),
-            SizedBox(height: 24,),
+            SizedBox(
+              height: 24,
+            ),
+
             // Nom App
             _buildAppName(),
-            SizedBox(height: 8,),
+            SizedBox(
+              height: 8,
+            ),
+
             // Slogan
             _buildAppSlogan(),
+            SizedBox(
+              height: 48,
+            ),
 
-            SizedBox(height: 48,),
             //Chargement
             _buildLoadingIndicator()
           ],
@@ -111,11 +117,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Widget _buildLogo() {
-    return AnimatedOpacity( // Rendu fondu : Démarrage Lent puis accéleration progressive
+    return AnimatedOpacity(
       opacity: _showLogo ? 1 : 0,
       duration: Duration(milliseconds: 500),
       curve: Curves.easeIn,
-      child: AnimatedScale( // Démarrage rapide puis décélération
+      child: AnimatedScale(
         scale: _showLogo ? 1 : 0,
         duration: Duration(milliseconds: 500),
         curve: Curves.easeOut,
@@ -123,17 +129,14 @@ class _SplashScreenState extends State<SplashScreen> {
           width: 124,
           height: 124,
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withAlpha(180),
-                blurRadius: 20,
-                offset: Offset(0, 10)
-              )
-            ]
-            //shape: BoxShape.circle
-          ),
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                    color: AppColors.primary.withAlpha(180),
+                    blurRadius: 20,
+                    offset: Offset(0, 10))
+              ]),
           child: Icon(
             Icons.task_alt,
             size: 65,
@@ -154,8 +157,7 @@ class _SplashScreenState extends State<SplashScreen> {
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
-          letterSpacing: 1.2
-        ),
+            letterSpacing: 1.2),
       ),
     );
   }
@@ -166,10 +168,7 @@ class _SplashScreenState extends State<SplashScreen> {
       duration: Duration(milliseconds: 500),
       child: Text(
         AppStrings.appSlogan,
-        style: TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary
-        ),
+        style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
       ),
     );
   }
