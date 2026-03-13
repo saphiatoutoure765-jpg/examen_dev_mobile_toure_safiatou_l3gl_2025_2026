@@ -19,12 +19,14 @@ class Task {
   final TaskStatus status;
   final TaskPriority priority;
   final DateTime createdAt;
+  final DateTime? dueDate;
 
   Task({
     required this.id,
     required this.title,
     required this.description,
     required this.projectId,
+    required this.dueDate,
     this.status = TaskStatus.todo,
     this.priority = TaskPriority.medium,
     DateTime? createdAt,
@@ -38,6 +40,7 @@ class Task {
     TaskStatus? status,
     TaskPriority? priority,
     DateTime? createdAt,
+    DateTime? dueDate,
   }) {
     return Task(
       id: id ?? this.id,
@@ -47,6 +50,7 @@ class Task {
       status: status ?? this.status,
       priority: priority ?? this.priority,
       createdAt: createdAt ?? this.createdAt,
+      dueDate: dueDate ?? this.dueDate,
     );
   }
 
