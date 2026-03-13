@@ -28,6 +28,12 @@ class ProjectCard extends StatelessWidget {
 
         onTap: onTap,
 
+        // === Pastille couleur du projet ===
+        leading: CircleAvatar(
+          backgroundColor: project.color,
+          radius: 10,
+        ),
+
         title: Text(
           project.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
