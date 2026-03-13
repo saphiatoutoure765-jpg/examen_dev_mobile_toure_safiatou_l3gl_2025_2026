@@ -7,9 +7,12 @@ import '../../widgets/cards/project_card.dart';
 
 class ProjectFormScreen extends StatefulWidget {
 
-  final Project? project;
+  final Project? project; // null = création, non-null = modification
 
-  const ProjectFormScreen({super.key, this.project});
+  const ProjectFormScreen({
+    super.key,
+    this.project,
+  });
 
   @override
   State<ProjectFormScreen> createState() => _ProjectFormScreenState();
@@ -19,8 +22,8 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _nameController;
-  late TextEditingController _descriptionController;
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   Color _selectedColor = Colors.blue;
 
@@ -39,13 +42,11 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
   void initState() {
     super.initState();
 
-    _nameController =
-        TextEditingController(text: widget.project?.name ?? "");
-
-    _descriptionController =
-        TextEditingController(text: widget.project?.description ?? "");
-
-    _selectedColor = widget.project?.color ?? Colors.blue;
+    if (widget.project != null) {
+      _nameController.text = widget.project!.name;
+      _descriptionController.text = widget.project!.description;
+      _selectedColor = widget.project!.color;
+    }
   }
 
   @override
@@ -59,21 +60,21 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
 
     if (!_formKey.currentState!.validate()) return;
 
-    final provider = context.read<ProjectProvider>();
+    final projectProvider =
+    Provider.of<ProjectProvider>(context, listen: false);
 
     final project = Project(
-      id: widget.project?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.project?.id ?? DateTime.now().toString(),
       name: _nameController.text,
       description: _descriptionController.text,
-      userId: "user1",
+      userId: "1",
       color: _selectedColor,
-      createdAt: widget.project?.createdAt,
     );
 
     if (widget.project == null) {
-      provider.createProject(project);
+      projectProvider.createProject(project);
     } else {
-      provider.updateProject(project);
+      projectProvider.updateProject(project);
     }
 
     Navigator.pop(context);
@@ -88,30 +89,35 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
       description: _descriptionController.text.isEmpty
           ? "Description du projet"
           : _descriptionController.text,
-      userId: "preview",
+      userId: "1",
       color: _selectedColor,
     );
 
     return Scaffold(
 
       appBar: AppBar(
-        title: Text(widget.project == null ? "Créer Projet" : "Modifier Projet"),
+        title: Text(
+          widget.project == null
+              ? "Créer un projet"
+              : "Modifier le projet",
+        ),
       ),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
 
         child: Column(
-
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
+            /// FORMULAIRE
             Form(
               key: _formKey,
 
               child: Column(
-
                 children: [
 
+                  /// NOM
                   TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(
@@ -119,11 +125,13 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Nom obligatoire";
+                        return "Le nom est obligatoire";
                       }
+
                       if (value.length < 3) {
                         return "Minimum 3 caractères";
                       }
+
                       return null;
                     },
                     onChanged: (_) => setState(() {}),
@@ -131,22 +139,26 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
 
                   const SizedBox(height: 16),
 
+                  /// DESCRIPTION
                   TextFormField(
                     controller: _descriptionController,
-                    maxLines: 3,
                     decoration: const InputDecoration(
                       labelText: "Description",
                     ),
+                    maxLines: 3,
                     onChanged: (_) => setState(() {}),
                   ),
 
                   const SizedBox(height: 20),
 
+                  /// COULEUR
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Couleur du projet",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
 
@@ -157,19 +169,24 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
                     children: _colors.map((color) {
 
                       return GestureDetector(
-
                         onTap: () {
                           setState(() {
                             _selectedColor = color;
                           });
                         },
-
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: color,
-                          child: _selectedColor == color
-                              ? const Icon(Icons.check, color: Colors.white)
-                              : null,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border: _selectedColor == color
+                                ? Border.all(
+                              color: Colors.black,
+                              width: 3,
+                            )
+                                : null,
+                          ),
                         ),
                       );
 
@@ -178,28 +195,11 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
 
                   const SizedBox(height: 30),
 
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Aperçu",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  ProjectCard(
-                    project: previewProject,
-                  ),
-
-                  const SizedBox(height: 30),
-
+                  /// BOUTON
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-
                       onPressed: _saveProject,
-
                       child: Text(
                         widget.project == null
                             ? "Créer"
@@ -210,6 +210,24 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
 
                 ],
               ),
+            ),
+
+            const SizedBox(height: 30),
+
+            /// PREVIEW
+            const Text(
+              "Aperçu",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            ProjectCard(
+              project: previewProject,
+              taskCount: 0,
             ),
 
           ],
