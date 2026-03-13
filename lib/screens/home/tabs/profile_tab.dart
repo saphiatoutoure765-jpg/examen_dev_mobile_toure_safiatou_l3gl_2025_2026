@@ -1,32 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:sunu_task/core/constants/app_colors.dart';
+import 'package:provider/provider.dart';
 
-// === PARTIE 4.5 ===
-// Profil utilisateur
+import '../../../providers/auth_provider.dart';
+import '../../../providers/project_provider.dart';
+import '../../../providers/task_provider.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    final authProvider = context.watch<AuthProvider>();
+    final projectCount = context.watch<ProjectProvider>().projectCount;
+    final taskCount = context.watch<TaskProvider>().tasks.length;
+
+    final user = authProvider.currentUser;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
 
-          const CircleAvatar(
+          CircleAvatar(
             radius: 40,
             child: Text(
-              "U",
-              style: TextStyle(fontSize: 24),
+              user != null
+                  ? user.name.substring(0, 1).toUpperCase()
+                  : "U",
+              style: const TextStyle(fontSize: 24),
             ),
           ),
 
           const SizedBox(height: 20),
 
-          const Text(
-            "Utilisateur",
-            style: TextStyle(
+          Text(
+            user?.name ?? "Utilisateur",
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -34,7 +44,7 @@ class ProfileTab extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          const Text("user@email.com"),
+          Text(user?.email ?? "user@email.com"),
 
           const SizedBox(height: 30),
 
@@ -42,7 +52,7 @@ class ProfileTab extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.folder),
               title: const Text("Projets"),
-              subtitle: const Text("0 projets"),
+              subtitle: Text("$projectCount projets"),
             ),
           ),
 
@@ -50,7 +60,7 @@ class ProfileTab extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.task),
               title: const Text("Tâches"),
-              subtitle: const Text("0 tâches"),
+              subtitle: Text("$taskCount tâches"),
             ),
           ),
         ],

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sunu_task/core/constants/app_colors.dart';
+import 'package:provider/provider.dart';
 
-// === PARTIE 4.2 ===
-// DashboardTab : affichage principal avec message de bienvenue
+import '../../../providers/project_provider.dart';
+import '../../../providers/task_provider.dart';
+import '../../../core/constants/app_colors.dart';
 
 class DashboardTab extends StatelessWidget {
   const DashboardTab({super.key});
@@ -21,6 +22,10 @@ class DashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final projectCount = context.watch<ProjectProvider>().projectCount;
+    final taskCount = context.watch<TaskProvider>().tasks.length;
+
     return RefreshIndicator(
       onRefresh: () async {
         await Future.delayed(const Duration(seconds: 1));
@@ -51,7 +56,7 @@ class DashboardTab extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.folder),
               title: const Text("Projets"),
-              subtitle: const Text("Nombre de projets : 0"),
+              subtitle: Text("Nombre de projets : $projectCount"),
             ),
           ),
 
@@ -59,7 +64,7 @@ class DashboardTab extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.list),
               title: const Text("Tâches"),
-              subtitle: const Text("Nombre de tâches : 0"),
+              subtitle: Text("Nombre de tâches : $taskCount"),
             ),
           ),
         ],

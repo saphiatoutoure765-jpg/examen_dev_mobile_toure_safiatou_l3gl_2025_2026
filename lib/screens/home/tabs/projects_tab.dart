@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/project_provider.dart';
+import '../../../providers/task_provider.dart';
 import '../../../widgets/cards/project_card.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../projects/project_detail_screen.dart';
@@ -13,9 +14,10 @@ class ProjectsTab extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final projectProvider = context.watch<ProjectProvider>();
+    final taskProvider = context.watch<TaskProvider>();
+
     final projects = projectProvider.projects;
 
-    /// si aucun projet
     if (projects.isEmpty) {
       return Center(
         child: Column(
@@ -45,7 +47,6 @@ class ProjectsTab extends StatelessWidget {
       );
     }
 
-    /// si projets existent
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: projects.length,
@@ -53,12 +54,15 @@ class ProjectsTab extends StatelessWidget {
 
         final project = projects[index];
 
+        final taskCount = taskProvider.tasks
+            .where((task) => task.projectId == project.id)
+            .length;
+
         return ProjectCard(
           project: project,
-          taskCount: 0,
+          taskCount: taskCount,
 
           onTap: () {
-
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -67,7 +71,6 @@ class ProjectsTab extends StatelessWidget {
                 ),
               ),
             );
-
           },
         );
       },
