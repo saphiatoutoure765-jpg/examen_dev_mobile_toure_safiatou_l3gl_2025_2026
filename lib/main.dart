@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/project_provider.dart';
+import 'providers/task_provider.dart';
 import 'services/storage_service.dart';
 import 'screens/splash/splash_screen.dart';
 
@@ -21,9 +23,22 @@ class SunuTask extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+
+        /// Auth
         ChangeNotifierProvider(
           create: (_) => AuthProvider(),
         ),
+
+        /// Projects
+        ChangeNotifierProvider(
+          create: (_) => ProjectProvider(),
+        ),
+
+        /// Tasks
+        ChangeNotifierProvider(
+          create: (_) => TaskProvider(),
+        ),
+
       ],
       child: MaterialApp(
         title: 'SunuTask',
